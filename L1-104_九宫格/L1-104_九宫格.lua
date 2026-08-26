@@ -1,0 +1,3 @@
+-- 实现原理：每个行、列、3×3 宫都必须恰好包含 1~9，用集合检查重复即可。
+local cases=tonumber(io.read("*l")); local function valid(a) local function check(vals) local seen={}; for _,v in ipairs(vals) do if v<1 or v>9 or seen[v] then return false end; seen[v]=true end; return true end; for i=1,9 do if not check(a[i]) then return false end; local col={}; for j=1,9 do col[j]=a[j][i] end; if not check(col) then return false end end; for r=1,9,3 do for c=1,9,3 do local box={}; for i=r,r+2 do for j=c,c+2 do box[#box+1]=a[i][j] end end; if not check(box) then return false end end end; return true end
+for _=1,cases do local grid={}; for i=1,9 do grid[i]={}; for x in io.read("*l"):gmatch("%d+") do grid[i][#grid[i]+1]=tonumber(x) end end; print(valid(grid) and 1 or 0) end

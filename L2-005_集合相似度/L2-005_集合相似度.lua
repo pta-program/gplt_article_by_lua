@@ -1,0 +1,2 @@
+-- 实现原理：以哈希表保存每个集合的不同元素；查询时统计交集，再由 |A|+|B|-交集 得并集。
+local n=tonumber(io.read("*l")); local sets={}; for i=1,n do sets[i]={}; local vals={}; for x in io.read("*l"):gmatch("%d+") do vals[#vals+1]=tonumber(x) end; for j=2,#vals do sets[i][vals[j]]=true end end; local q=tonumber(io.read("*l")); for _=1,q do local a,b=io.read("*l"):match("(%d+)%s+(%d+)"); a,b=sets[tonumber(a)],sets[tonumber(b)]; local ca,cb,common=0,0,0; for x in pairs(a) do ca=ca+1; if b[x] then common=common+1 end end; for _ in pairs(b) do cb=cb+1 end; print(string.format("%.2f%%",common/(ca+cb-common)*100)) end
