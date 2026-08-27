@@ -1,2 +1,0 @@
--- 实现原理：统计流量最大值、最小值和平均值；超过平均值两倍的记录输出其位置，否则输出 Normal。
-local n=tonumber(io.read("*l")); local a={}; local sum=0; for x in io.read("*l"):gmatch("%d+") do a[#a+1]=tonumber(x); sum=sum+a[#a] end; local mx,mn=a[1],a[1]; for _,x in ipairs(a) do if x>mx then mx=x end; if x<mn then mn=x end end; local avg=sum//n; print(mx.." "..mn.." "..avg); local bad={}; for i,x in ipairs(a) do if x>avg*2 then bad[#bad+1]=i end end; if #bad==0 then print("Normal") else print(table.concat(bad," ")) end

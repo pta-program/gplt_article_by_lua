@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPLT 题解 · Lua</title>
+  <meta name="description" content="GPLT 天梯赛题解与 Lua 参考实现">
+  <script>
+    (function () {
+      var saved = localStorage.getItem('gplt-theme');
+      var dark = saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if (dark) document.documentElement.classList.add('dark-mode');
+    }());
+  </script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <style>
+    :root {
+      --theme-color: #6a5acd;
+      --theme-color-dark: #5144b5;
+      --page-bg: #ffffff;
+      --surface: #ffffff;
+      --sidebar-bg: #f7f7fc;
+      --text: #2c2c35;
+      --muted: #737386;
+      --border: #e6e6f0;
+      --code-bg: #f6f7fc;
+      --code-text: #34344a;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { background: var(--page-bg); color: var(--text); }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+    .markdown-section { max-width: 980px; color: var(--text); }
+    .markdown-section h1, .markdown-section h2, .markdown-section h3 { color: var(--text); }
+    .markdown-section h1 { font-size: 2rem; }
+    .markdown-section a { color: var(--theme-color); }
+    .markdown-section blockquote { border-left-color: var(--theme-color); }
+    .markdown-section table { display: table; width: 100%; }
+    .markdown-section code { color: var(--theme-color-dark); background: rgba(106, 90, 205, .09); }
+    .markdown-section pre { border: 1px solid var(--border); border-radius: 12px; background: var(--code-bg); box-shadow: 0 8px 24px rgba(106, 90, 205, .06); }
+    .markdown-section pre > code { color: var(--code-text); background: transparent; }
+    .sidebar { background: var(--sidebar-bg); border-right: 1px solid var(--border); }
+    .sidebar-nav { padding: 24px 18px 48px; }
+    .sidebar-nav > ul > li > strong { display: block; margin: 22px 0 8px; color: var(--theme-color-dark); font-size: .82rem; letter-spacing: .04em; }
+    .sidebar-nav > ul > li:first-child > strong { margin-top: 0; }
+    .sidebar-nav li ul { padding-left: 0; }
+    .sidebar-nav li a { display: block; padding: 5px 8px; border-radius: 6px; color: var(--text); font-size: .88rem; line-height: 1.45; }
+    .sidebar-nav li a:hover, .sidebar-nav li.active > a { color: var(--theme-color); background: rgba(106, 90, 205, .1); }
+    .sidebar-nav li.active > a { font-weight: 600; }
+    .sidebar-nav > ul > li > ul { display: block; }
+    .app-sub-sidebar li:before { display: none; }
+    .app-nav { margin: 18px 28px; }
+    .search .search input { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); }
+    .search .search .search-keyword, .search .search .search-keyword:first-child { color: var(--theme-color); }
+    .pagination-item a { color: var(--theme-color); }
+
+    .theme-toggle {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 9999;
+      width: 46px;
+      height: 46px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .9);
+      color: var(--text);
+      box-shadow: 0 8px 22px rgba(35, 31, 78, .16);
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: transform .2s ease, background .2s ease, color .2s ease;
+    }
+    .theme-toggle:hover { transform: translateY(-3px); color: var(--theme-color); }
+    .theme-toggle:focus-visible { outline: 3px solid rgba(106, 90, 205, .35); outline-offset: 3px; }
+
+    html.dark-mode {
+      --page-bg: #12131a;
+      --surface: #1c1f2e;
+      --sidebar-bg: #171a27;
+      --text: #e5e7f0;
+      --muted: #a5a9bb;
+      --border: #2d334b;
+      --code-bg: #1b1e2b;
+      --code-text: #d6d9e6;
+    }
+    html.dark-mode body, html.dark-mode .app-nav, html.dark-mode .markdown-section { color: var(--text); background: var(--page-bg); }
+    html.dark-mode .sidebar { background: var(--sidebar-bg); }
+    html.dark-mode .sidebar-nav li a { color: var(--text); }
+    html.dark-mode .sidebar-nav li a:hover, html.dark-mode .sidebar-nav li.active > a { background: rgba(155, 140, 255, .14); color: #b6acff; }
+    html.dark-mode .sidebar-nav > ul > li > strong { color: #b6acff; }
+    html.dark-mode .markdown-section h1, html.dark-mode .markdown-section h2, html.dark-mode .markdown-section h3,
+    html.dark-mode .markdown-section strong { color: var(--text); }
+    html.dark-mode .markdown-section code { color: #b6acff; background: rgba(155, 140, 255, .14); }
+    html.dark-mode .markdown-section pre { border-color: var(--border); box-shadow: 0 8px 24px rgba(0, 0, 0, .2); }
+    html.dark-mode .markdown-section pre > code { color: var(--code-text); }
+    html.dark-mode .markdown-section table tr { border-color: var(--border); }
+    html.dark-mode .markdown-section table tr:nth-child(2n) { background: #181b28; }
+    html.dark-mode .markdown-section th { background: #202438; }
+    html.dark-mode .markdown-section blockquote { color: var(--muted); }
+    html.dark-mode .search .search input { border-color: var(--border); background: var(--surface); color: var(--text); }
+    html.dark-mode .theme-toggle { border-color: var(--border); background: rgba(35, 38, 58, .94); color: #ffe08a; }
+    html.dark-mode .progress { background: #9b8cff; }
+    @media (max-width: 768px) {
+      .sidebar-nav { padding-top: 64px; }
+      .theme-toggle { right: 16px; bottom: 16px; }
+      .markdown-section { padding: 30px 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">正在加载题解……</div>
+  <button class="theme-toggle" type="button" aria-label="切换暗黑模式" title="切换暗黑模式">🌙</button>
+  <script>
+    window.$docsify = {
+      name: 'GPLT · Lua 题解',
+      repo: 'https://github.com/Zonkidd-Shao/gplt_by_lua',
+      loadSidebar: true,
+      alias: { '/.*/_sidebar.md': '/_sidebar.md' },
+      subMaxLevel: 0,
+      auto2top: true,
+      relativePath: true,
+      formatUpdated: '{YYYY}-{MM}-{DD}',
+      search: { placeholder: '🔍 搜索题号 / 标题 / 关键词', depth: 4, noData: '没有找到结果', paths: 'auto' },
+      pagination: { previousText: '上一题', nextText: '下一题', crossChapter: true },
+      copyCode: { buttonText: '复制', errorText: '复制失败', successText: '已复制' }
+    };
+
+    (function () {
+      var button = document.querySelector('.theme-toggle');
+      function setTheme(dark) {
+        document.documentElement.classList.toggle('dark-mode', dark);
+        localStorage.setItem('gplt-theme', dark ? 'dark' : 'light');
+        button.textContent = dark ? '☀️' : '🌙';
+        button.setAttribute('aria-label', dark ? '切换浅色模式' : '切换暗黑模式');
+        button.setAttribute('title', dark ? '切换浅色模式' : '切换暗黑模式');
+      }
+      setTheme(document.documentElement.classList.contains('dark-mode'));
+      button.addEventListener('click', function () { setTheme(!document.documentElement.classList.contains('dark-mode')); });
+      document.addEventListener('keydown', function (event) {
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'd') {
+          event.preventDefault();
+          setTheme(!document.documentElement.classList.contains('dark-mode'));
+        }
+      });
+    }());
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-c.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-cpp.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-java.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-python.min.js"></script>
+</body>
+</html>
