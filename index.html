@@ -122,7 +122,16 @@
       formatUpdated: '{YYYY}-{MM}-{DD}',
       search: { placeholder: '🔍 搜索题号 / 标题 / 关键词', depth: 4, noData: '没有找到结果', paths: 'auto' },
       pagination: { previousText: '上一题', nextText: '下一题', crossChapter: true },
-      copyCode: { buttonText: '复制', errorText: '复制失败', successText: '已复制' }
+      copyCode: { buttonText: '复制', errorText: '复制失败', successText: '已复制' },
+      plugins: [
+        function (hook) {
+          hook.doneEach(function () {
+            if (window.MathJax && window.MathJax.typesetPromise) {
+              window.MathJax.typesetPromise();
+            }
+          });
+        }
+      ]
     };
 
     (function () {
@@ -144,6 +153,16 @@
       });
     }());
   </script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
