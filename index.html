@@ -30,15 +30,34 @@
     * { box-sizing: border-box; }
     html, body { background: var(--page-bg); color: var(--text); }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
-    .markdown-section { max-width: 980px; color: var(--text); }
+    .markdown-section {
+      max-width: 1100px;
+      color: var(--text);
+      line-height: 1.8;
+    }
     .markdown-section h1, .markdown-section h2, .markdown-section h3 { color: var(--text); }
-    .markdown-section h1 { font-size: 2rem; }
+    .markdown-section h1 { margin-bottom: 1.2rem; font-size: 2rem; line-height: 1.35; }
+    .markdown-section h2 { margin-top: 2.4rem; padding-bottom: .45rem; border-bottom: 1px solid var(--border); line-height: 1.4; }
+    .markdown-section h3 { margin-top: 1.7rem; line-height: 1.5; }
+    .markdown-section p, .markdown-section li { line-height: 1.8; }
     .markdown-section a { color: var(--theme-color); }
     .markdown-section blockquote { border-left-color: var(--theme-color); }
-    .markdown-section table { display: table; width: 100%; }
+    .markdown-section table { display: table; width: 100%; margin: 1rem 0 1.5rem; }
     .markdown-section code { color: var(--theme-color-dark); background: rgba(106, 90, 205, .09); }
-    .markdown-section pre { border: 1px solid var(--border); border-radius: 12px; background: var(--code-bg); box-shadow: 0 8px 24px rgba(106, 90, 205, .06); }
+    .markdown-section pre { margin: 1rem 0 1.4rem; overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--code-bg); box-shadow: 0 8px 24px rgba(106, 90, 205, .06); }
     .markdown-section pre > code { color: var(--code-text); background: transparent; }
+    .mermaid {
+      width: 100%;
+      margin: 1.2rem 0 1.8rem;
+      padding: 1rem;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      text-align: center;
+    }
+    .mermaid svg { max-width: 100%; height: auto; }
+    .mermaid-error { color: var(--muted); text-align: left; white-space: pre-wrap; }
     .sidebar { background: var(--sidebar-bg); border-right: 1px solid var(--border); }
     .sidebar-nav { padding: 24px 18px 48px; }
     .sidebar-nav > ul > li > strong { display: block; margin: 22px 0 8px; color: var(--theme-color-dark); font-size: .82rem; letter-spacing: .04em; }
@@ -126,6 +145,25 @@
       plugins: [
         function (hook) {
           hook.doneEach(function () {
+            var diagrams = Array.from(document.querySelectorAll('pre code.lang-mermaid, pre code.language-mermaid'));
+            var nodes = diagrams.map(function (code) {
+              var container = document.createElement('div');
+              container.className = 'mermaid';
+              container.textContent = code.textContent.trim();
+              code.parentElement.replaceWith(container);
+              return container;
+            });
+
+            if (window.mermaid && nodes.length) {
+              Promise.all(nodes.map(function (node) {
+                return Promise.resolve().then(function () {
+                  return window.mermaid.run({ nodes: [node] });
+                }).catch(function () {
+                  node.classList.add('mermaid-error');
+                });
+              }));
+            }
+
             if (window.MathJax && window.MathJax.typesetPromise) {
               window.MathJax.typesetPromise();
             }
@@ -163,6 +201,17 @@
     };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) {
+      window.mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: 'loose',
+        theme: 'base',
+        flowchart: { htmlLabels: true, curve: 'basis', useMaxWidth: true }
+      });
+    }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
